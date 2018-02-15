@@ -1,0 +1,13 @@
+{
+  "name": "sixthsensegame",
+  "version": "0.0.1",
+  "description": "A collab between several awesome people in attepmt to make an awesome game!",
+  "main": "sixthsenseclient/index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "socket.io": "latest",
+    "electron":"latest"
+  }
+}
