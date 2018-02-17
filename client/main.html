@@ -2,12 +2,27 @@
 <html>
 <head>
     <style>
+        #devTools{
+            float:left;
+        }
         p{
             text-align: left;
             position: absolute;
             left:1%;
             font-family: monospace;
             font-size: 150%;
+        }
+        #axes {
+            width: 200px;
+            height: 200px;
+            background-color: #fff; /* or transparent; */
+            border: 1px solid red; /* or none; */
+            margin: 20px;
+            padding: 0px;
+            position: absolute;
+            left: 0px;
+            bottom: 0px;
+            z-index: 100;
         }
     </style>
     <title>Test 06</title>
@@ -16,5 +31,8 @@
     <script type="text/javascript" src="main.js" ></script>
 </head>
 <body style="text-align:center;">
+<div id="devTools">
+    <div id="axes"></div>
 <p><span style="color:red;">The X axis is red.</span><br><span style="color:green;">The Y axis is green.</span><br><span style="color:blue;">The Z axis is blue.</span> </p>
+</div>
 </body></html>
