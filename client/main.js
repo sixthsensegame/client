@@ -1,5 +1,5 @@
 let faces = ["xFront","xBack","yFront","yBack","zFront","zBack"];//the 6 faces of the cube
-
+alert("The { ` } aka Backquote key enables/disables devTools");
 let main = {
 	scene    : null,
 	camera   : null,
@@ -15,12 +15,12 @@ let axes = {
 let controls, INTERSECTED, light, mesh;
 let SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 let mouse = {x: 0, y: 0};
-
+let keyboard = [];//the keys being pressed
 let cubeSize = 30;//change cube's size
 let cubeSegments = 30;//change how many segments per side
 
 /**DEV TOOLS AND TESTING ITEMS**/
-let devControls = false;
+let devControls = false;// the
 let mouseHoverOverPieceDoesWhat = {
 	swapColorTo       : 0xffff00,
 	changesWireFrameTo: true
@@ -187,23 +187,38 @@ function onScreenLoad() {
 	if (devControls) {
 		setUpDevTools();
 	}
-
 	controls = new THREE.OrbitControls(main.camera, main.renderer.domElement);
 	document.addEventListener('mousemove', onDocumentMouseMove, false);
 	animate();
-
 
 }
 function animate() {
 	requestAnimationFrame(animate);
 	light.position.set(main.camera.position.x, main.camera.position.y, main.camera.position.z);
-	render();
-	update();
 	if (devControls) {
+		if(axes.scene === null){
+			setUpDevTools();
+		}
 		axes.camera.rotation = main.camera.rotation;
 		axes.camera.position.set(main.camera.position.x / 10, main.camera.position.y / 10, main.camera.position.z / 10);
 		axes.camera.lookAt(axes.scene.position);
 	}
+	else{
+		if(axes.scene!==null){
+			while(axes.scene.lastChild){
+				axes.scene.removeChild(axes.scene.lastChild)
+			}
+			axes.scene = null;
+			axes.camera = null;
+			axes.renderer = null;
+			axes.container=null;
+			document.getElementById("devTools").style.opacity = 0;
+
+		}
+	}
+
+	render();
+	update();
 }
 function onDocumentMouseMove(event) {
 	mouse = {
@@ -243,4 +258,21 @@ function update() {
 	}
 	controls.update();
 }
+
+
+function keyDown(event){
+	keyboard[event.keyCode] = true;
+}
+
+function keyUp(event){
+	console.log(`The { ${event.key} } aka ${event.code} key was pressed, KeyCode: ${event.keyCode}`);
+	if(keyboard[192] && keyboard[16]){
+		devControls = !devControls;
+	}
+	keyboard[event.keyCode] = false;
+}
+
+window.addEventListener('keydown', keyDown);
+window.addEventListener('keyup', keyUp);
+
 window.onload = onScreenLoad;
