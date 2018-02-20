@@ -1,65 +1,76 @@
+let faces = ["xFront","xBack","yFront","yBack","zFront","zBack"];//the 6 faces of the cube
+
 let main = {
 	scene    : null,
 	camera   : null,
 	renderer : null,
 	container: null
-};
+};//the main scene's items
 let axes = {
 	scene    : null,
 	camera   : null,
 	renderer : null,
 	container: null
-};
+};//the axis's scene's items (disabled when devControls is off
 let controls, INTERSECTED, light, mesh;
 let SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 let mouse = {x: 0, y: 0};
-let cubeSize = 30;
-let cubeSpaces = 30;
 
-/***/
+let cubeSize = 30;//change cube's size
+let cubeSegments = 30;//change how many segments per side
+
+/**DEV TOOLS AND TESTING ITEMS**/
 let devControls = false;
 let mouseHoverOverPieceDoesWhat = {
 	swapColorTo       : 0xffff00,
 	changesWireFrameTo: true
 };
 
-function addAxis() {
-	console.log("ran");
+function random(max,min) {
+	min = min || 0;
+	max = max || 100;
+	return min+ Math.round(Math.random()*max);
+}//returns a rounded random number (used when testing)
+function setUpDevTools() {
+	document.getElementById('devTools').style.opacity = 1;
+	for(let i =0;i<faces.length;i++) {
+		document.getElementById(faces[i]).style.color = "#" + changeJSHexToCss(cubeFaces[faces[i]].color.toString(16));
+	}
+
 	axes.container = document.getElementById("axes");
-	axes.renderer =  new THREE.WebGLRenderer();
+	axes.renderer = new THREE.WebGLRenderer();
 	axes.renderer.setSize(200, 200);
 	axes.container.appendChild(axes.renderer.domElement);
 
 	axes.scene = new THREE.Scene();
-	axes.camera = new THREE.PerspectiveCamera(45, 200/200, 0.1, 200000);
+	axes.camera = new THREE.PerspectiveCamera(45, 200 / 200, 0.1, 200000);
 	axes.camera.up = main.camera.up;
 	axes.scene.add(axes.camera);
 
-	let axesHelper =  new THREE.AxesHelper(100);
-	main.scene.add(axesHelper);
-
-	axesHelper =  new THREE.AxesHelper(10);
+	let axesHelper = new THREE.AxesHelper(10);
 	axes.scene.add(axesHelper);
 	axes.camera.lookAt(axes.scene.position);
 	axes.camera.position.set(0, 20, 0);
 }
+/*******************************/
 
-/***/
-
-
+function changeJSHexToCss(args) {
+	let zeros = "";
+	for(let i = args.length;i<6;i++){
+		zeros+="0";
+	}
+	return `${zeros}${args}`;
+}//Changes the Javascript's HEX code to a CSS's HEX code
 let cubeFaces = {
-	xFront: [[]],
-	xBack : [],
-	yFront: [],
-	yBack : [],
-	zFront: [],
-	zBack : []
-};
+	xFront: {grid:[],color:0x00FFDC},
+	xBack : {grid:[],color:0xFFD800},
+	yFront: {grid:[],color:0x9300FF},
+	yBack : {grid:[],color:0x0FFF00},
+	zFront: {grid:[],color:0xFF0000},
+	zBack : {grid:[],color:0x0017FF}
+};//The meshes & colors for all 6 sides
 
 function onScreenLoad() {
-	if(!devControls){
-		document.getElementById('devTools').style.opacity=0;
-	}
 	main.container = document.body;
 	main.scene = new THREE.Scene();
 
@@ -68,9 +79,6 @@ function onScreenLoad() {
 	main.scene.add(main.camera);
 	main.camera.position.set(0, 150, 400);
 	main.camera.lookAt(main.scene.position);
-	//RENDERER
-	//0x000088
-
 
 	//the little "selectable" cubes
 	function addCube(args) {
@@ -87,14 +95,14 @@ function onScreenLoad() {
 		o = args.o || 1;
 		let shape = new THREE.Shape();
 
-		shape.lineTo(0, 0, cubeSize / cubeSpaces, 0);
-		shape.lineTo(cubeSize / cubeSpaces, 0, +cubeSize / cubeSpaces, cubeSize / cubeSpaces);
-		shape.lineTo(cubeSize / cubeSpaces, cubeSize / cubeSpaces, 0, cubeSize / cubeSpaces);
-		shape.lineTo(0, cubeSize / cubeSpaces, 0, 0);
+		shape.lineTo(0, 0, cubeSize / cubeSegments, 0);
+		shape.lineTo(cubeSize / cubeSegments, 0, +cubeSize / cubeSegments, cubeSize / cubeSegments);
+		shape.lineTo(cubeSize / cubeSegments, cubeSize / cubeSegments, 0, cubeSize / cubeSegments);
+		shape.lineTo(0, cubeSize / cubeSegments, 0, 0);
 
 		mesh = new THREE.Mesh(
 			new THREE.ShapeGeometry(shape),
-			new THREE.MeshPhongMaterial({color: 0xff4444, wireframe: false})
+			new THREE.MeshPhongMaterial({color:cubeFaces[where[0]].color || 0xFFFFFF, wireframe: false})
 		);
 		mesh.material.opacity = o;
 		mesh.position.set(x, y, z);
@@ -102,61 +110,61 @@ function onScreenLoad() {
 		mesh.receiveShadow = true;
 		mesh.castShadow = true;
 		main.scene.add(mesh);
-		where = {mesh: mesh, args: args};
+		cubeFaces[where[0]].grid[where[1]][where[2]] = {mesh: mesh, args: args};
 	}
-
 	for (let i = 0; i < 30; i++) {
-		cubeFaces.xFront.push([]);
-		cubeFaces.xBack.push([]);
-		cubeFaces.yFront.push([]);
-		cubeFaces.yBack.push([]);
-		cubeFaces.zFront.push([]);
-		cubeFaces.zBack.push([]);
+		cubeFaces.xFront.grid.push([]);
+		cubeFaces.xBack.grid.push([]);
+		cubeFaces.yFront.grid.push([]);
+		cubeFaces.yBack.grid.push([]);
+		cubeFaces.zFront.grid.push([]);
+		cubeFaces.zBack.grid.push([]);
 		for (let j = 0; j < 30; j++) {
-
 			addCube({
 				x    : -(cubeSize / 2) + j,
 				y    : -(cubeSize / 2) + i,
 				z    : cubeSize / 2,
-				where: cubeFaces.zFront[i][j]
+				where: ["zFront", i, j]
 			});
 			addCube({
 				x    : -(cubeSize / 2) + (j + 1),
 				y    : -(cubeSize / 2) + i,
 				z    : -cubeSize / 2,
-				where: cubeFaces.zBack[i][j],
+				where: ["zBack", i, j],
 				ry   : 29.85 * 2
 			});
 			addCube({
 				x    : -(cubeSize / 2) + j,
 				y    : -cubeSize / 2,
 				z    : -(cubeSize / 2) + i,
-				where: cubeFaces.yBack[i][j],
+				where: ["yBack", i, j],
 				rx   : -29.85
 			});
 			addCube({
 				x    : -(cubeSize / 2) + j,
 				y    : cubeSize / 2,
 				z    : -(cubeSize / 2) + (i + 1),
-				where: cubeFaces.yFront[i][j],
+				where: ["yFront", i, j],
 				rx   : 29.85
 			});
 			addCube({
 				x    : cubeSize / 2,
 				y    : -(cubeSize / 2) + j,
 				z    : -(cubeSize / 2) + (i + 1),
-				where: cubeFaces.xFront[i][j],
+				where: ["xFront", i, j],
 				ry   : -29.85
 			});
 			addCube({
 				x    : -cubeSize / 2,
 				y    : -(cubeSize / 2) + j,
 				z    : -(cubeSize / 2) + i,
-				where: cubeFaces.xBack[i][j],
+				where: ["xBack", i, j],
 				ry   : 29.85
 			});
 		}
 	}
+
+
 	// LIGHT
 	let ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
 	main.scene.add(ambientLight);
@@ -168,21 +176,22 @@ function onScreenLoad() {
 	light.shadow.camera.far = 1000;
 	main.scene.add(light);
 
+	//RENDERER
 	main.renderer = new THREE.WebGLRenderer();
 	main.renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	main.renderer.shadowMap.enabled = true;
 	main.renderer.shadowMap.type = THREE.BasicShadowMap;
 	main.container.appendChild(main.renderer.domElement);
 
-
-	//ORBIT CONTROLS
+	//DEV CONTROLS
 	if (devControls) {
-		addAxis();
+		setUpDevTools();
 	}
 
 	controls = new THREE.OrbitControls(main.camera, main.renderer.domElement);
 	document.addEventListener('mousemove', onDocumentMouseMove, false);
 	animate();
+
 
 }
 function animate() {
@@ -192,7 +201,7 @@ function animate() {
 	update();
 	if (devControls) {
 		axes.camera.rotation = main.camera.rotation;
-		axes.camera.position.set(main.camera.position.x/10,main.camera.position.y/10,main.camera.position.z/10)
+		axes.camera.position.set(main.camera.position.x / 10, main.camera.position.y / 10, main.camera.position.z / 10);
 		axes.camera.lookAt(axes.scene.position);
 	}
 }

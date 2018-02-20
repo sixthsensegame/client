@@ -2,16 +2,19 @@
 <html>
 <head>
     <style>
-        #devTools{
+        #devTools {
+            opacity: 0;
             float:left;
         }
-        p{
+        p {
             text-align: left;
             position: absolute;
-            left:1%;
+            left: 1%;
             font-family: monospace;
             font-size: 150%;
+            color:white;
         }
+
         #axes {
             width: 200px;
             height: 200px;
@@ -26,13 +29,22 @@
         }
     </style>
     <title>Test 06</title>
-    <script type="text/javascript" src="../three.min.js" ></script>
-    <script type="text/javascript" src="../OrbitControls.js" ></script>
-    <script type="text/javascript" src="main.js" ></script>
+    <script type="text/javascript" src="../three.min.js"></script>
+    <script type="text/javascript" src="../OrbitControls.js"></script>
+    <script type="text/javascript" src="main.js"></script>
 </head>
 <body style="text-align:center;">
 <div id="devTools">
     <div id="axes"></div>
-<p><span style="color:red;">The X axis is red.</span><br><span style="color:green;">The Y axis is green.</span><br><span style="color:blue;">The Z axis is blue.</span> </p>
+    <p><span style="color:red;">The X axis is red.</span><br><span style="color:green;">The Y axis is green.</span><br><span style="color:blue;">The Z axis is blue.</span><br><br>
+        Teams are:<br>
+        <span id="zFront" style="color:#ed50ff;">Z-Front</span><br>
+        <span id="zBack">Z-Back</span><br>
+        <span id="xFront">X-Front</span><br>
+        <span id="xBack">X-Back</span><br>
+        <span id="yFront">Y-Front</span><br>
+        <span id="yBack">Y-Back</span><br>
+    </p>
 </div>
-</body></html>
+</body>
+</html>
