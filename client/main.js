@@ -6,9 +6,8 @@ let main = {
 	renderer : null,
 	container: null
 };//the main scene's items
-let controls, INTERSECTED, light, mesh;
+let controls, light, mesh;
 let SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
-let mouse = {x: 0, y: 0};
 let cubeSize = 30;//change cube's size
 let cubeSegments = 30;//change how many segments per side
 let cubeFaces = {
@@ -23,12 +22,13 @@ let cubeFaces = {
 //INPORTS/EXPORTS
 let Imports = {
 	keyboard: require("./modules/actions/keyboard.js"),
-	axes    : require("./modules/axes.js")
+	axes    : require("./modules/axes.js"),
+	mouse   : require("./modules/actions/mouse")
 };
 
 
 /**DEV TOOLS AND TESTING ITEMS**/
-let mouseHoverOverPieceDoesWhat = {
+Imports.mouse.mouseHoverOverPieceDoesWhat = {
 	swapColorTo       : 0xffff00,
 	changesWireFrameTo: true
 };
@@ -174,13 +174,12 @@ function onScreenLoad() {
 		setUpDevTools();
 	}
 	controls = new THREE.OrbitControls(main.camera, main.renderer.domElement);
-	document.addEventListener('mousemove', onDocumentMouseMove, false);
+	Imports.mouse.setUp(document);
 	Imports.keyboard.checkKeys(window);
 	animate();
 
 }
 function animate() {
-	console.log(Imports.keyboard.devControls);
 	requestAnimationFrame(animate);
 	light.position.set(main.camera.position.x, main.camera.position.y, main.camera.position.z);
 	if (Imports.keyboard.devControls) {
@@ -197,12 +196,6 @@ function animate() {
 	render();
 	update();
 }
-function onDocumentMouseMove(event) {
-	mouse = {
-		x: (event.clientX / window.innerWidth) * 2 - 1,
-		y: -(event.clientY / window.innerHeight) * 2 + 1
-	};
-}
 function render() {
 	main.renderer.render(main.scene, main.camera);
 	if (Imports.keyboard.devControls) {
@@ -210,29 +203,7 @@ function render() {
 	}
 }
 function update() {
-	let vector = new THREE.Vector3(mouse.x, mouse.y, 1);
-	vector.unproject(main.camera);
-	let ray = new THREE.Raycaster(main.camera.position, vector.sub(main.camera.position).normalize());
-	let intersects = ray.intersectObjects(main.scene.children);
-	if (intersects.length > 0) {
-		if (intersects[0].object != INTERSECTED) {
-			if (INTERSECTED) {
-				INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
-				INTERSECTED.material.wireframe = false;
-			}
-			INTERSECTED = intersects[0].object;
-			INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
-			INTERSECTED.material.wireframe = mouseHoverOverPieceDoesWhat.changesWireFrameTo;
-			INTERSECTED.material.color.setHex(mouseHoverOverPieceDoesWhat.swapColorTo);
-		}
-	}
-	else {
-		if (INTERSECTED) {
-			INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
-			INTERSECTED.material.wireframe = false;
-		}
-		INTERSECTED = null;
-	}
+	Imports.mouse.animate(main);
 	controls.update();
 }
 
