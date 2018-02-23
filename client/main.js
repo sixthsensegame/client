@@ -1,4 +1,4 @@
-let faces = ["xFront","xBack","yFront","yBack","zFront","zBack"];//the 6 faces of the cube
+let faces = ["xFront", "xBack", "yFront", "yBack", "zFront", "zBack"];//the 6 faces of the cube
 alert("The Shift + Backquote{ ` }key enables/disables devTools");
 let main = {
 	scene    : null,
@@ -6,77 +6,55 @@ let main = {
 	renderer : null,
 	container: null
 };//the main scene's items
-let axes = {
-	scene    : null,
-	camera   : null,
-	renderer : null,
-	container: null
-};//the axis's scene's items (disabled when devControls is off
 let controls, INTERSECTED, light, mesh;
 let SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 let mouse = {x: 0, y: 0};
 let cubeSize = 30;//change cube's size
 let cubeSegments = 30;//change how many segments per side
 let cubeFaces = {
-	xFront: {grid:[],color:0x00FFDC},
-	xBack : {grid:[],color:0xFFD800},
-	yFront: {grid:[],color:0x9300FF},
-	yBack : {grid:[],color:0x0FFF00},
-	zFront: {grid:[],color:0xFF0000},
-	zBack : {grid:[],color:0x0017FF}
+	xFront: {grid: [], color: 0x00FFDC},
+	xBack : {grid: [], color: 0xFFD800},
+	yFront: {grid: [], color: 0x9300FF},
+	yBack : {grid: [], color: 0x0FFF00},
+	zFront: {grid: [], color: 0xFF0000},
+	zBack : {grid: [], color: 0x0017FF}
 };//The meshes & colors for all 6 sides
 
 //INPORTS/EXPORTS
 let Imports = {
-	keyboard: require("./modules/actions/keyboard.js")
+	keyboard: require("./modules/actions/keyboard.js"),
+	axes    : require("./modules/axes.js")
 };
 
 
 /**DEV TOOLS AND TESTING ITEMS**/
-Imports.keyboard.devControls = false;// the devControls
 let mouseHoverOverPieceDoesWhat = {
 	swapColorTo       : 0xffff00,
 	changesWireFrameTo: true
 };
 
-function random(max,min) {
+function random(max, min) {
 	min = min || 0;
 	max = max || 100;
-	return min+ Math.round(Math.random()*max);
+	return min + Math.round(Math.random() * max);
 }//returns a rounded random number (used when testing)
 function setUpDevTools() {
 	document.getElementById('devTools').style.opacity = 1;
-	for(let i =0;i<faces.length;i++) {
+	for (let i = 0; i < faces.length; i++) {
 		document.getElementById(faces[i]).style.color = "#" + changeJSHexToCss(cubeFaces[faces[i]].color.toString(16));
 	}
-
-	axes.container = document.getElementById("axes");
-	axes.renderer = new THREE.WebGLRenderer();
-	axes.renderer.setSize(200, 200);
-	axes.container.appendChild(axes.renderer.domElement);
-
-	axes.scene = new THREE.Scene();
-	axes.camera = new THREE.PerspectiveCamera(45, 200 / 200, 0.1, 200000);
-	axes.camera.up = main.camera.up;
-	axes.scene.add(axes.camera);
-
-	let axesHelper = new THREE.AxesHelper(10);
-	axes.scene.add(axesHelper);
-	axes.camera.lookAt(axes.scene.position);
-	axes.camera.position.set(0, 20, 0);
+	Imports.axes.appendAxes(document);
 }
 /*******************************/
 
 
-
 function changeJSHexToCss(args) {
 	let zeros = "";
-	for(let i = args.length;i<6;i++){
-		zeros+="0";
+	for (let i = args.length; i < 6; i++) {
+		zeros += "0";
 	}
 	return `${zeros}${args}`;
 }//Changes the Javascript's HEX code to a CSS's HEX code
-
 function onScreenLoad() {
 	main.container = document.body;
 	main.scene = new THREE.Scene();
@@ -109,7 +87,7 @@ function onScreenLoad() {
 
 		mesh = new THREE.Mesh(
 			new THREE.ShapeGeometry(shape),
-			new THREE.MeshPhongMaterial({color:cubeFaces[where[0]].color || 0xFFFFFF, wireframe: false})
+			new THREE.MeshPhongMaterial({color: cubeFaces[where[0]].color || 0xFFFFFF, wireframe: false})
 		);
 		mesh.material.opacity = o;
 		mesh.position.set(x, y, z);
@@ -119,6 +97,7 @@ function onScreenLoad() {
 		main.scene.add(mesh);
 		cubeFaces[where[0]].grid[where[1]][where[2]] = {mesh: mesh, args: args};
 	}
+
 	for (let i = 0; i < 30; i++) {
 		cubeFaces.xFront.grid.push([]);
 		cubeFaces.xBack.grid.push([]);
@@ -205,27 +184,16 @@ function animate() {
 	requestAnimationFrame(animate);
 	light.position.set(main.camera.position.x, main.camera.position.y, main.camera.position.z);
 	if (Imports.keyboard.devControls) {
-		if(axes.scene === null){
+		if (Imports.axes.scene === null) {
 			setUpDevTools();
 		}
-		axes.camera.rotation = main.camera.rotation;
-		axes.camera.position.set(main.camera.position.x / 10, main.camera.position.y / 10, main.camera.position.z / 10);
-		axes.camera.lookAt(axes.scene.position);
+		Imports.axes.animate(main);
 	}
-	else{
-		if(axes.scene!==null){
-			while(axes.scene.lastChild){
-				axes.scene.removeChild(axes.scene.lastChild)
-			}
-			axes.scene = null;
-			axes.camera = null;
-			axes.renderer = null;
-			axes.container=null;
-			document.getElementById("devTools").style.opacity = 0;
+	else if (Imports.axes.scene !== null) {
+		Imports.axes.removeAxes();
+		document.getElementById("devTools").style.opacity = 0;
 
-		}
 	}
-
 	render();
 	update();
 }
@@ -238,7 +206,7 @@ function onDocumentMouseMove(event) {
 function render() {
 	main.renderer.render(main.scene, main.camera);
 	if (Imports.keyboard.devControls) {
-		axes.renderer.render(axes.scene, axes.camera);
+		Imports.axes.render(main);
 	}
 }
 function update() {

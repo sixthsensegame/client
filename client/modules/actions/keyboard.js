@@ -1,5 +1,5 @@
 let keys = module.exports = {
-	devControls:true,
+	devControls:false,
 	keyboard:[],
 	checkKeys: function (window) {
 		keys.keyboard = [];
