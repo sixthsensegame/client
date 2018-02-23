@@ -1,5 +1,5 @@
 let faces = ["xFront","xBack","yFront","yBack","zFront","zBack"];//the 6 faces of the cube
-alert("The { ` } aka Backquote key enables/disables devTools");
+alert("The Shift + Backquote{ ` }key enables/disables devTools");
 let main = {
 	scene    : null,
 	camera   : null,
@@ -15,12 +15,25 @@ let axes = {
 let controls, INTERSECTED, light, mesh;
 let SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 let mouse = {x: 0, y: 0};
-let keyboard = [];//the keys being pressed
 let cubeSize = 30;//change cube's size
 let cubeSegments = 30;//change how many segments per side
+let cubeFaces = {
+	xFront: {grid:[],color:0x00FFDC},
+	xBack : {grid:[],color:0xFFD800},
+	yFront: {grid:[],color:0x9300FF},
+	yBack : {grid:[],color:0x0FFF00},
+	zFront: {grid:[],color:0xFF0000},
+	zBack : {grid:[],color:0x0017FF}
+};//The meshes & colors for all 6 sides
+
+//INPORTS/EXPORTS
+let Imports = {
+	keyboard: require("./modules/actions/keyboard.js")
+};
+
 
 /**DEV TOOLS AND TESTING ITEMS**/
-let devControls = false;// the
+Imports.keyboard.devControls = false;// the devControls
 let mouseHoverOverPieceDoesWhat = {
 	swapColorTo       : 0xffff00,
 	changesWireFrameTo: true
@@ -54,6 +67,8 @@ function setUpDevTools() {
 }
 /*******************************/
 
+
+
 function changeJSHexToCss(args) {
 	let zeros = "";
 	for(let i = args.length;i<6;i++){
@@ -61,14 +76,6 @@ function changeJSHexToCss(args) {
 	}
 	return `${zeros}${args}`;
 }//Changes the Javascript's HEX code to a CSS's HEX code
-let cubeFaces = {
-	xFront: {grid:[],color:0x00FFDC},
-	xBack : {grid:[],color:0xFFD800},
-	yFront: {grid:[],color:0x9300FF},
-	yBack : {grid:[],color:0x0FFF00},
-	zFront: {grid:[],color:0xFF0000},
-	zBack : {grid:[],color:0x0017FF}
-};//The meshes & colors for all 6 sides
 
 function onScreenLoad() {
 	main.container = document.body;
@@ -184,18 +191,20 @@ function onScreenLoad() {
 	main.container.appendChild(main.renderer.domElement);
 
 	//DEV CONTROLS
-	if (devControls) {
+	if (Imports.keyboard.devControls) {
 		setUpDevTools();
 	}
 	controls = new THREE.OrbitControls(main.camera, main.renderer.domElement);
 	document.addEventListener('mousemove', onDocumentMouseMove, false);
+	Imports.keyboard.checkKeys(window);
 	animate();
 
 }
 function animate() {
+	console.log(Imports.keyboard.devControls);
 	requestAnimationFrame(animate);
 	light.position.set(main.camera.position.x, main.camera.position.y, main.camera.position.z);
-	if (devControls) {
+	if (Imports.keyboard.devControls) {
 		if(axes.scene === null){
 			setUpDevTools();
 		}
@@ -228,7 +237,7 @@ function onDocumentMouseMove(event) {
 }
 function render() {
 	main.renderer.render(main.scene, main.camera);
-	if (devControls) {
+	if (Imports.keyboard.devControls) {
 		axes.renderer.render(axes.scene, axes.camera);
 	}
 }
@@ -258,21 +267,5 @@ function update() {
 	}
 	controls.update();
 }
-
-
-function keyDown(event){
-	keyboard[event.keyCode] = true;
-}
-
-function keyUp(event){
-	console.log(`The { ${event.key} } aka ${event.code} key was pressed, KeyCode: ${event.keyCode}`);
-	if(keyboard[192] && keyboard[16]){
-		devControls = !devControls;
-	}
-	keyboard[event.keyCode] = false;
-}
-
-window.addEventListener('keydown', keyDown);
-window.addEventListener('keyup', keyUp);
 
 window.onload = onScreenLoad;
