@@ -9,7 +9,7 @@ let i;
 const createWindow = () => {
 	win = new BrowserWindow({fullscreen: true, width: electron.screen.getPrimaryDisplay().workAreaSize.width, height: electron.screen.getPrimaryDisplay().workAreaSize.height, frame: false});
 	win.loadURL(url.format({
-		pathname: path.join(__dirname, 'client/main.html'),
+		pathname: path.join(__dirname, 'client/pages/main/main.html'),
 		protocol: 'file:',
 		slashes: true
 	}));
