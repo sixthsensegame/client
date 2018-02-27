@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sixth Sense</title>
+    <script type="text/javascript" src="../../../three.min.js"></script><!-- These access the 3 scripts-->
+    <script type="text/javascript" src="../../../OrbitControls.js"></script>
+    <script type="text/javascript" src="main.js"></script>
+
+    <link rel="stylesheet" href="./main.css" media="screen" />
+</head>
+<body style="text-align:center;">
+<!-- The Dev Tools they are invisible until changed in main.js-->
+<div id="devTools">
+    <div id="axes"></div>
+    <p><span style="color:red;">The X axis is red.</span><br><span style="color:green;">The Y axis is green.</span><br><span style="color:blue;">The Z axis is blue.</span><br><br>
+        Teams are:<br>
+        <span id="zFront" style="color:#ed50ff;">Z-Front</span><br>
+        <span id="zBack">Z-Back</span><br>
+        <span id="xFront">X-Front</span><br>
+        <span id="xBack">X-Back</span><br>
+        <span id="yFront">Y-Front</span><br>
+        <span id="yBack">Y-Back</span><br>
+    </p>
+</div>
+
+<!-- the Loading page, turns invisable when loaded everything -->
+<div id="loadingItems">
+    <h1>Sixth Sense</h1>
+    <div id="stuff">
+        <div id="maxLoad"><div id="loaded"></div></div>
+
+        <p id="version">version 0.0.0</p>
+        <p id="assets">Loading assets 0 of 0</p>
+    </div>
+</div>
+</body>
+</html>
