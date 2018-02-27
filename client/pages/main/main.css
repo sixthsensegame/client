@@ -1,0 +1,75 @@
+body{
+    margin:0px;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    background-color: black;
+    background-size: 100%;
+}
+#devTools {
+    opacity: 0;
+    float:left;
+}
+#devTools p {
+    z-index: 1;
+}
+p {
+    text-align: left;
+    position: absolute;
+    left: 1%;
+    font-family: monospace;
+    font-size: 150%;
+    color:white;
+}
+
+#axes {
+    width: 200px;
+    height: 200px;
+    background-color: #fff; /* or transparent; */
+    border: 1px solid red; /* or none; */
+    margin: 20px;
+    padding: 0px;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    z-index: 100;
+}
+#loadingItems {
+    color:white;
+    text-align: center;
+}
+#maxLoad {
+    width:80%;
+    position: relative;
+    left:10%;
+    top:10em;
+    height: 10px;
+    border: 5px solid white;
+    background-color: transparent;
+}
+#loaded{
+    position: relative;
+    top: 5%;
+    width: 0px;
+    height: 10px;
+    background-color: white;
+}
+#version{
+    text-align: center;
+    position: relative;
+    top:5em;
+}
+#assets{
+    text-align: center;
+    position: relative;
+    top:5em;
+}
+#stuff{
+    position: relative;
+    top:10em;
+}
+canvas{
+    position: absolute;
+    top:0px;
+    left:0px;
+
+}
