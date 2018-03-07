@@ -1,28 +1,38 @@
 let mesh, light;
+let randomFunctions = require("./../modules/other/randomFunctions.js");
 let main = module.exports = {
 	cubeSize    : 30,
 	cubeSegments: 30,
-	cubeFaces : {
-		xFront: {grid: [], color: 0x00FFDC},
-		xBack : {grid: [], color: 0xFFD800},
-		yFront: {grid: [], color: 0x9300FF},
-		yBack : {grid: [], color: 0x0FFF00},
-		zFront: {grid: [], color: 0xFF0000},
-		zBack : {grid: [], color: 0x0017FF}
+	sideNames   : ["xFront", "xBack", "yFront", "yBack", "zFront", "zBack"],
+	cubeFaces   : {
+		xFront: {grid: [], items: {}, color: 0x00FFDC},
+		xBack : {grid: [], items: {}, color: 0xFFD800},
+		yFront: {grid: [], items: {}, color: 0x9300FF},
+		yBack : {grid: [], items: {}, color: 0x0FFF00},
+		zFront: {grid: [], items: {}, color: 0xFF0000},
+		zBack : {grid: [], items: {}, color: 0x0017FF}
 	},
 	scene       : null,
 	camera      : null,
 	renderer    : null,
 	container   : null,
 	loadScene   : {
-		createBasics(document,window){
+		createBasics(document, window){
+			for (let i = 0; i < main.sideNames.length; i++) {
+				for (let q = 0; q < 30; q++) {
+					main.cubeFaces[main.sideNames[i]].grid.push([]);
+					for (let j = 0; j < 30; j++) {
+						main.cubeFaces[main.sideNames[i]].grid[q].push("");
+					}
+				}
+			}
 			let SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
-			console.log(SCREEN_WIDTH,SCREEN_HEIGHT);
 			//SCENE AND CAMERA
 			main.scene = new THREE.Scene();
 			main.camera = new THREE.PerspectiveCamera(45, SCREEN_WIDTH / SCREEN_HEIGHT, 0.1, 20000);
 			main.scene.add(main.camera);
-			main.camera.position.set(0, 150, 400);
+//			main.camera.position.set(0, 150, 400);
+			main.camera.position.set(62.8, 12.2, 1.6);
 			main.camera.lookAt(main.scene.position);
 
 			//LIGHT
@@ -43,90 +53,31 @@ let main = module.exports = {
 			main.renderer.shadowMap.type = THREE.BasicShadowMap;
 			main.renderer.render(main.scene, main.camera);
 		},
-		createMainCubes(document,window){
-			function addCube(args) {
-				let x, y, z, rx, ry, rz, where, o;
+		createMainCubes(document, window){
+			let textureLoader = new THREE.TextureLoader();
+			let materials = [];
 
-				args = args || {};
-				x = args.x || 0;
-				y = args.y || 0;
-				z = args.z || 0;
-				rx = args.rx || 0;
-				ry = args.ry || 0;
-				rz = args.rz || 0;
-				where = args.where || cubeFaces.xFront[0][0];
-				o = args.o || 1;
-				let shape = new THREE.Shape();
-				let size = main.cubeSize / main.cubeSegments;
-				shape.lineTo(0, 0, size, 0);
-				shape.lineTo(size, 0, size, size);
-				shape.lineTo(size, size, 0, size);
-				shape.lineTo(0, size, 0, 0);
+			function addSide(side) {
+				let gridTexture = new textureLoader.load(`./../../textures/0x${randomFunctions.changeJSHexToCss(main.cubeFaces[side].color)}.png`);
+				gridTexture.repeat.set(0.94, 0.94);
+				gridTexture.offset.set(0, 0.065);
 
-				mesh = new THREE.Mesh(
-					new THREE.ShapeGeometry(shape),
-					new THREE.MeshPhongMaterial({color: main.cubeFaces[where[0]].color || 0xFFFFFF, wireframe: false})
-				);
-				mesh.material.opacity = o;
-				mesh.position.set(x, y, z);
-				mesh.rotation.set(rx, ry, rz);
-				mesh.receiveShadow = true;
-				mesh.castShadow = true;
-				main.scene.add(mesh);
-				main.cubeFaces[where[0]].grid[where[1]][where[2]] = {mesh: mesh, args: args};
+				materials.push(new THREE.MeshPhongMaterial({
+					map      : gridTexture,
+					color    : main.cubeFaces[side].color || 0xFF0000,
+					wireframe: false
+				}));
 			}
 
-			for (let i = 0; i < main.cubeSize; i++) {
-				main.cubeFaces.xFront.grid.push([]);
-				main.cubeFaces.xBack.grid.push([]);
-				main.cubeFaces.yFront.grid.push([]);
-				main.cubeFaces.yBack.grid.push([]);
-				main.cubeFaces.zFront.grid.push([]);
-				main.cubeFaces.zBack.grid.push([]);
-				for (let j = 0; j < main.cubeSize; j++) {
-					addCube({
-						x    : -(main.cubeSize / 2) + j,
-						y    : -(main.cubeSize / 2) + i,
-						z    : main.cubeSize / 2,
-						where: ["zFront", i, j]
-					});
-					addCube({
-						x    : -(main.cubeSize / 2) + (j + 1),
-						y    : -(main.cubeSize / 2) + i,
-						z    : -main.cubeSize / 2,
-						where: ["zBack", i, j],
-						ry   : 29.85 * 2
-					});
-					addCube({
-						x    : -(main.cubeSize / 2) + j,
-						y    : -main.cubeSize / 2,
-						z    : -(main.cubeSize / 2) + i,
-						where: ["yBack", i, j],
-						rx   : -29.85
-					});
-					addCube({
-						x    : -(main.cubeSize / 2) + j,
-						y    : main.cubeSize / 2,
-						z    : -(main.cubeSize / 2) + (i + 1),
-						where: ["yFront", i, j],
-						rx   : 29.85
-					});
-					addCube({
-						x    : main.cubeSize / 2,
-						y    : -(main.cubeSize / 2) + j,
-						z    : -(main.cubeSize / 2) + (i + 1),
-						where: ["xFront", i, j],
-						ry   : -29.85
-					});
-					addCube({
-						x    : -main.cubeSize / 2,
-						y    : -(main.cubeSize / 2) + j,
-						z    : -(main.cubeSize / 2) + i,
-						where: ["xBack", i, j],
-						ry   : 29.85
-					});
-				}
-			}
+			addSide("xFront");
+			addSide("xBack");
+			addSide("yFront");
+			addSide("yBack");
+			addSide("zFront");
+			addSide("zBack");
+			mesh = new THREE.Mesh(new THREE.BoxGeometry(main.cubeSize, main.cubeSize, main.cubeSize, main.cubeSegments, main.cubeSegments, main.cubeSegments), materials);
+			mesh.name = "World";
+			main.scene.add(mesh);
 		}
 	},
 	appendScene(document){

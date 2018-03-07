@@ -1,6 +1,23 @@
 {
   "version":"0.0.6",
   "devSettings":{
-    "consolesKeyPresses":false
+    "logs": {
+      "controls": true,
+      "keysPress": false,
+      "placement": false
+    },
+    "controls": {
+      "keyboard": [
+        "The Shift + Backquote{ ` }key enables/disables devTools",
+        "The Shift + B key enables/disables build mode"
+      ],
+      "builder": [
+        "Left click builds",
+        "Right click cancels the build",
+        "middle click rotates it",
+        "The digits 1-9 all builds different sized cubes"
+      ]
+    },
+    "loggedBuildControls": false
   }
 }
