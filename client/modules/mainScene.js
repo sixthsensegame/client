@@ -19,9 +19,9 @@ let main = module.exports = {
 	loadScene   : {
 		createBasics(document, window){
 			for (let i = 0; i < main.sideNames.length; i++) {
-				for (let q = 0; q < 30; q++) {
+				for (let q = 0; q < main.cubeSize; q++) {
 					main.cubeFaces[main.sideNames[i]].grid.push([]);
-					for (let j = 0; j < 30; j++) {
+					for (let j = 0; j < main.cubeSize; j++) {
 						main.cubeFaces[main.sideNames[i]].grid[q].push("");
 					}
 				}
@@ -31,9 +31,8 @@ let main = module.exports = {
 			main.scene = new THREE.Scene();
 			main.camera = new THREE.PerspectiveCamera(45, SCREEN_WIDTH / SCREEN_HEIGHT, 0.1, 20000);
 			main.scene.add(main.camera);
-//			main.camera.position.set(0, 150, 400);
-			main.camera.position.set(62.8, 12.2, 1.6);
-			main.camera.lookAt(main.scene.position);
+			main.camera.position.set(0, -1.9, 99.9);
+			main.camera.rotation.set(0, 0, 0);
 
 			//LIGHT
 			let ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
@@ -75,6 +74,7 @@ let main = module.exports = {
 			addSide("yBack");
 			addSide("zFront");
 			addSide("zBack");
+			console.log(materials)
 			mesh = new THREE.Mesh(new THREE.BoxGeometry(main.cubeSize, main.cubeSize, main.cubeSize, main.cubeSegments, main.cubeSegments, main.cubeSegments), materials);
 			mesh.name = "World";
 			main.scene.add(mesh);

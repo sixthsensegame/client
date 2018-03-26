@@ -27,9 +27,9 @@ let randomFunction = module.exports = {
 		MainCubeSize = MainCubeSize || 30;
 		if (idx < 0) return;
 		let pos = [0, idx];
-		if (idx >= 30) {
-			while (idx >= 30) {
-				idx -= 30;
+		if (idx >= MainCubeSize) {
+			while (idx >= MainCubeSize) {
+				idx -= MainCubeSize;
 				pos[0]++;
 			}
 			pos[1] = idx;

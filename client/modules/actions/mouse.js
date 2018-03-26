@@ -3,7 +3,8 @@ let Imports = {
 	main      : require("./../mainScene"),
 	config    : require("./../../config.json"),
 	playerData: require("./../../playerData.json"),
-	random    : require("./../other/randomFunctions.js")
+	random    : require("./../other/randomFunctions.js"),
+	camera    : require("./../cameraControls.js")
 };
 function checkIfCanPlace(cubeSize, cubePos, mapSize, side, rotation) {
 	cubeSize = cubeSize || [1, 1, 1];
@@ -79,6 +80,7 @@ let cubeSizes = [
 let mouse = module.exports = {
 		realIdx      : -1,
 		intersections: [],
+	clicking         : false,
 		rotation     : 0,
 		INTERSECTED  : null,
 		world        : null,
@@ -88,80 +90,81 @@ let mouse = module.exports = {
 		y            : 0,
 		setUp        : function (document) {
 			document.addEventListener('mousemove', mouse.update, false);
+			document.addEventListener('mousedown', function (event) {
+				if (event.button === 0) mouse.clicking = true;
+			}, false);
 			document.addEventListener('mouseup', mouse.click, false);
 			document.addEventListener('wheel', mouse.onScroll, false);
+			document.addEventListener("drag", mouse.drag, false);
 		},
 		onScroll     : function (event) {
-			if (Imports.playerData.buildMode) {
+			if (Imports.keyboard.lastNumber === null || !Imports.playerData.buildMode) {
+				Imports.camera.scroll(event);
+			}
+			else if (Imports.playerData.buildMode && Imports.keyboard.lastNumber) {
 				if (event.wheelDelta > 0) {
 					mouse.rotation++;
 				}
 				else {
 					mouse.rotation--;
 				}
-				if (mouse.rotation > 3) mouse.rotation = 0;
-				if (mouse.rotation < 0) mouse.rotation = 3;
-			}
-			else {
+				if (mouse.rotation > 1) mouse.rotation = 0;
+				if (mouse.rotation < 0) mouse.rotation = 1;
 			}
 		},
 		update       : function (event) {
+			if (mouse.clicking) {
+				Imports.camera.drag(event);
+			}
 			mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 			mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
 		},
 		click        : function (event) {
+			if (event.button === 0) mouse.clicking = false;
 			//event.button === 0 || LEFT CLICK
 			//event.button === 1 || MIDDLE CLICK
 			//event.button === 2 || RIGHT CLICK
 			if (mouse.intersects.length === 0) return;
-			if (event.button === 0) {
-				if (Imports.playerData.buildMode) {
-					let mesh = createCube(cubeSizes[Imports.keyboard.lastNumber - 1], false);
-					let canPlace = checkIfCanPlace(cubeSizes[Imports.keyboard.lastNumber - 1], mesh.pos, Imports.main.cubeSize, Imports.main.sideNames[Math.floor(mouse.INTERSECTED.faceIndex / 1800)], mouse.rotation);
-					if (typeof canPlace === "boolean") {
-						Imports.main.scene.add(mesh.obj);
-						if (Imports.config.devSettings.logs.placement) {
-							console.log(`Placed a ${cubeSizes[Imports.keyboard.lastNumber - 1].join("x")} at 
+			if (Imports.playerData.buildMode) {
+				if (event.button === 0) {
+					if (Imports.keyboard.lastNumber) {
+						let mesh = createCube(cubeSizes[Imports.keyboard.lastNumber - 1], false);
+						let canPlace = checkIfCanPlace(cubeSizes[Imports.keyboard.lastNumber - 1], mesh.pos, Imports.main.cubeSize, Imports.main.sideNames[Math.floor(mouse.INTERSECTED.faceIndex / 1800)], mouse.rotation);
+						if (typeof canPlace === "boolean") {
+							Imports.main.scene.add(mesh.obj);
+							if (Imports.config.devSettings.logs.placement) {
+								console.log(`Placed a ${cubeSizes[Imports.keyboard.lastNumber - 1].join("x")} at 
 							${mesh.pos.join("x")}`);
-						}
-						let grid = Imports.main.cubeFaces[Imports.main.sideNames[Math.floor(mouse.INTERSECTED.faceIndex / 1800)]].grid;
-						let cSize = cubeSizes[Imports.keyboard.lastNumber - 1];
-						let pos = mesh.pos;
-						if (mouse.rotation === 0) cSize = [cSize[1], cSize[0], cSize[2]];
-						let alphabet = "abcdefghijklmnopqrstuvwxyz";
-						for (let i = pos[0]; i < pos[0] + cSize[0]; i++) {
-							for (let j = pos[1]; j < pos[1] + cSize[1]; j++) {
-								grid[i][j] = alphabet[Imports.random.random(1, 20)];
+							}
+							let grid = Imports.main.cubeFaces[Imports.main.sideNames[Math.floor(mouse.INTERSECTED.faceIndex / 1800)]].grid;
+							let cSize = cubeSizes[Imports.keyboard.lastNumber - 1];
+							let pos = mesh.pos;
+							if (mouse.rotation === 0) cSize = [cSize[1], cSize[0], cSize[2]];
+							let alphabet = "abcdefghijklmnopqrstuvwxyz";
+							for (let i = pos[0]; i < pos[0] + cSize[0]; i++) {
+								for (let j = pos[1]; j < pos[1] + cSize[1]; j++) {
+									grid[i][j] = alphabet[Imports.random.random(1, 20)];
+								}
 							}
 						}
+						else {
+							console.warn(`ERRT (noise to be added)\nYou cannot place there as it ${canPlace}`);
+						}
 					}
-					else {
-						console.warn(`ERRT (noise to be added)\nYou cannot place there as it ${canPlace}`);
+				}
+				else if (event.button === 1) {
+					mouse.rotation++;
+					if (mouse.rotation < 0) {
+						mouse.rotation = 1;
+					}
+					else if (mouse.rotation > 1) {
+						mouse.rotation = 0;
 					}
 				}
-			}
-			else if (event.button === 1) {
-				mouse.rotation++;
-				if (mouse.rotation < 0) {
-					mouse.rotation = 1;
-				}
-				else if (mouse.rotation > 1) {
-					mouse.rotation = 0;
-				}
-			}
-			else if (event.button === 2) {
-				mouse.rotation++;
-				if (mouse.rotation < 0) {
-					mouse.rotation = 1;
-				}
-				else if (mouse.rotation > 1) {
-					mouse.rotation = 0;
-				}
-				if (Imports.playerData.buildMode) {
+				else if (event.button === 2) {
 					Imports.keyboard.lastNumber = null;
 				}
-				//	mouse.rotation -= 156;
 			}
 		},
 		animate      : function (main) {

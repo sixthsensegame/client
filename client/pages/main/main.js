@@ -39,7 +39,8 @@ function SetUpGame() {
 	if (Imports.keyboard.devControls) {
 		setUpDevTools();
 	}
-	controls = new THREE.OrbitControls(Imports.main.camera, Imports.main.renderer.domElement);
+	controls = require("./../../modules/cameraControls").setUp(document, window);
+	//controls = new THREE.OrbitControls(Imports.main.camera, Imports.main.renderer.domElement);
 	//SET UP CONTROLS
 	Imports.mouse.setUp(document);
 	Imports.keyboard.checkKeys(window);
@@ -73,7 +74,7 @@ function render() {
 }
 function update() {
 	Imports.mouse.animate(Imports.main);
-	controls.update();
+//	controls.update();
 
 }
 
